@@ -1,0 +1,22 @@
+{
+  "name": "@ellieproject/ellie",
+  "version": "0.1.0",
+  "description": "A generic LLE (Low Level Emulation) environment written entirely in Javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ellieproject/ellie.js.git"
+  },
+  "keywords": [
+    "Low Level Emulation"
+  ],
+  "author": "The Ellie Project, Grant Sparks",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/ellieproject/ellie.js/issues"
+  },
+  "homepage": "https://github.com/ellieproject/ellie.js#readme"
+}
