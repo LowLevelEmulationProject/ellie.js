@@ -2,7 +2,7 @@
   "name": "@ellieproject/ellie",
   "version": "0.1.0",
   "description": "A generic LLE (Low Level Emulation) environment written entirely in Javascript",
-  "main": "index.js",
+  "main": "src/ellie.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/ellieproject/ellie.js/issues"
   },
-  "homepage": "https://github.com/ellieproject/ellie.js#readme"
+  "homepage": "https://github.com/ellieproject/ellie.js#readme",
+  "devDependencies": {
+    "eslint": "^7.32.0"
+  }
 }
