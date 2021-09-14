@@ -8,6 +8,7 @@ function Opcode(acronym, description, execFunction) {
   this.instructions = {};
   this.name         = acronym;
   this.processor    = null;
+  return this;
 } // Opcode()
 
 Opcode.Mode = require('./opcode/mode.js');
@@ -22,9 +23,9 @@ Opcode.prototype.test = function(op) {
 
 Opcode.prototype.run = function(op, processor) {
   if (this.test(op)) {
-    var mode = this.instructions[op];
-    mode.preprocess(op, processor);
-    this.execute(op, processor);
+    const mode = this.instructions[op];
+    const result = mode.preprocess(op, processor);
+    this.execute(op, processor, result);
     return true;
   }
   return false;
@@ -35,6 +36,7 @@ Opcode.prototype.addProcessor = function(processor) {
   for (const instruction in this.instructions) {
     this.processor.addInstruction(instruction, this);
   }
+  return this;
 }; // Opcode.prototype.addProcessor()
 
 Opcode.prototype.addAddressingMode = function(instr, mode, force=false) {
@@ -55,6 +57,7 @@ Opcode.prototype.addAddressingMode = function(instr, mode, force=false) {
   default:
     console.error(`Cannot add mode '${mode.name}' to ${this}`);
   }
+  return this;
 }; // Opcode.prototype.addAddressingMode()
 
 module.exports = Opcode;

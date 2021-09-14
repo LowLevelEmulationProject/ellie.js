@@ -4,12 +4,13 @@ function Processor(name) {
   this.name        = name;
   this.opcode      = {};
   this.register    = {};
+  return this;
 } // Processor()
 
 Processor.prototype.addOpcode = function(opcode, name=null) {
   this.opcode[name || opcode.name] = opcode;
-  console.log(opcode);
   opcode.addProcessor(this);
+  return this;
 }; // Processor.prototype.addOpcode()
 
 Processor.prototype.addInstruction = function(instruction, opcode) {
@@ -18,14 +19,26 @@ Processor.prototype.addInstruction = function(instruction, opcode) {
   } else {
     this.instruction[instruction] = opcode;
   } // if instruction in this.instruction
+  return this;
 }; // Processor.prototype.addInstruction()
 
 Processor.prototype.addRegister = function(register, name=null) {
   this.register[name || register.name] = register;
+  return this;
 }; // Processor.prototype.addRegister()
 
 Processor.prototype.addMemory = function(memory, name=null) {
   this.memory[name || memory.name] = memory;
+  return this;
 }; // Processor.prototype.addMemory()
+
+Processor.prototype.run = function(instruction) {
+  if (instruction in this.instruction) {
+    this.instruction[instruction].run(instruction, this);
+  } else {
+    throw `Processor '${this.name}' has no Opcode ${instruction.toString(16)}`;
+  }
+  return this;
+}; // Processor.prototype.run()
 
 module.exports = Processor;
