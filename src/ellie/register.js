@@ -59,7 +59,7 @@ Register.prototype.lpad = function(int, size, pad='0') {
 };
 
 Register.prototype.toString = function () {
-  return `[object Register '${this.name}' 0b${this.lpad(this.bits.toString(2), this.size)}]`;
+  return `[object Register 0b${this.lpad(this.bits.toString(2), this.size)} '${this.name}']`;
 }; // Register.prototype.toString()
 
 module.exports = Register;
