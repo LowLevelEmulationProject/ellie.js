@@ -24,8 +24,9 @@ Opcode.prototype.test = function(op) {
 Opcode.prototype.run = function(op, processor) {
   if (this.test(op)) {
     const mode = this.instructions[op];
-    const result = mode.preprocess(op, processor);
-    this.execute(op, processor, result);
+    const pre = mode.preprocess(op, processor);
+    const post = this.execute(op, processor, pre);
+    mode.postprocess(op, processor, post);
     return true;
   }
   return false;
