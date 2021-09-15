@@ -23,10 +23,14 @@ Opcode.prototype.test = function(op) {
 
 Opcode.prototype.run = function(op, processor) {
   if (this.test(op)) {
+    let cont  = true;
     const mode = this.instructions[op];
-    const pre = mode.preprocess(op, processor);
-    const post = this.execute(op, processor, pre);
-    mode.postprocess(op, processor, post);
+    cont = mode.preexecute(op, processor);
+    if (cont !== true) { throw `Halting Opcode '${this.name}'. Preexecute returned ${cont}`; }
+    cont = this.execute(op, processor);
+    if (cont !== true) { throw `Halting Opcode '${this.name}'. Execute returned ${cont}`; }
+    cont = mode.postexecute(op, processor);
+    if (cont !== true) { throw `Halting Opcode '${this.name}'. Postexecute returned ${cont}`; }
     return true;
   }
   return false;

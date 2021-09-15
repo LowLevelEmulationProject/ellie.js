@@ -3,13 +3,13 @@
  */
 
 function doNothing() {
-  return null;
+  return true;
 } // doNothing()
 
-function Mode(name, preprocess=doNothing, postprocess=doNothing) {
+function Mode(name, preexecute=doNothing, postexecute=doNothing) {
   this.name = name;
-  this.preprocess = preprocess;
-  this.postprocess = postprocess;
+  this.preexecute = preexecute;
+  this.postexecute = postexecute;
 } // Opcode.Mode()
 
 module.exports = Mode;

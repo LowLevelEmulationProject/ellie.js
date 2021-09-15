@@ -1,18 +1,20 @@
 function Register(name, size, bits=0x0) {
-  this.bits      = bits;
-  this.name      = name;
-  this.namedBits = {}; // a bit may have many aliases
-  this.size      = size; // TODO enforce size
+  this.bits    = bits;
+  this.name    = name;
+  this.aliases = {}; // named aliases for given bits
+  this.size    = size; // TODO enforce size
   return this;
 } // Register()
 
+// BIT OPERATIONS
+
 Register.prototype.bit = function(idx) {
-  idx = this.namedBit(idx);
+  idx = this.aliasLookup(idx);
   return (this.bits >> idx) & 0x1;
 }; // Register.prototype.bit()
 
 Register.prototype.bitSet = function(idx, value) {
-  idx = this.namedBit(idx);
+  idx = this.aliasLookup(idx);
   // clear the bit
   this.bits &= ~(0x1 << idx);
   // set the bit based on value
@@ -20,19 +22,19 @@ Register.prototype.bitSet = function(idx, value) {
   return this;
 };
 
-Register.prototype.nameBit = function(idx, name) {
-  this.namedBits[name] = idx;
+Register.prototype.alias = function(idx, name) {
+  this.aliases[name] = idx;
   return this;
-}; // Register.prototype.nameBit()
+}; // Register.prototype.alias()
 
-Register.prototype.namedBit = function (name) {
+Register.prototype.aliasLookup = function(name) {
   switch (typeof name) {
   case 'number':
     // do nothing
     break;
   case 'string':
-    if (name in this.namedBits) {
-      name = this.namedBits[name];
+    if (name in this.aliases) {
+      name = this.aliases[name];
     } else {
       throw `Register ${this.name} cannot get bit '${name}'`;
     }
@@ -41,18 +43,39 @@ Register.prototype.namedBit = function (name) {
     throw `Register ${this.name} cannot get bit '${name}'`;
   }
   return name;
-}; // Register.prototype.namedBit()
+}; // Register.prototype.aliasLookup()
+
+// REGISTER OPERATIONS
+
+Register.prototype.load = function(other) {
+  this.bits = other.bits;
+  this.wrap();
+  return this;
+}; // Register.prototype.load()
 
 // TODO: there's got to be a nicer way that .set() and .get()
 
 Register.prototype.set = function(value) { // TODO add mask options
   this.bits = value;
+  this.wrap();
   return this;
 }; // Register.prototype.set()
 
 Register.prototype.get = function() {
   return this.bits;
 }; // Register.prototype.get()
+
+Register.prototype.test = function(value) {
+  return (this.bits === value ? 1 : 0);
+}; // Register.prototype.test()
+
+Register.prototype.wrap = function() {
+  const mod = 2**this.size;
+  this.bits = ((this.bits % mod) + mod) % mod;
+  return this;
+}; // Register.prototype.wrap()
+
+// STRING & FORMATTING OPERATIONS
 
 Register.prototype.lpad = function(int, size, pad='0') {
   return (pad.repeat(size) + int).slice(size * -1);
