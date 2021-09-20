@@ -4,10 +4,9 @@
  */
 
 var Ellie = {
-  Memory: require('./ellie/memory.js'),
-  Opcode: require('./ellie/opcode.js'),
-  Processor: require('./ellie/processor.js'),
-  Register: require('./ellie/register.js')
+  Memory:    require('@ellieproject/ellie/memory'),
+  Processor: require('@ellieproject/ellie/processor'),
+  Register:  require('@ellieproject/ellie/register')
 };
 
 module.exports = Ellie;

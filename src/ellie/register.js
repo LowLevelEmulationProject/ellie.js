@@ -1,10 +1,17 @@
 function Register(name, size, bits=0x0) {
+  // strongly enforced parameter
+  if (typeof name === 'undefined' || typeof size === 'undefined') {
+    throw new Register.Error('Register(name, size) must be defined');
+  }
   this.bits    = bits;
   this.name    = name;
   this.aliases = {}; // named aliases for given bits
-  this.size    = size; // TODO enforce size
+  this.size    = size;
+  this.wrap();
   return this;
 } // Register()
+
+Register.Error = require('@ellieproject/ellie/register/error');
 
 // BIT OPERATIONS
 
@@ -36,11 +43,14 @@ Register.prototype.aliasLookup = function(name) {
     if (name in this.aliases) {
       name = this.aliases[name];
     } else {
-      throw `Register ${this.name} cannot get bit '${name}'`;
+      throw new Register.Error(`Register ${this.name} has no alias ${name}`);
     }
     break;
   default:
-    throw `Register ${this.name} cannot get bit '${name}'`;
+    throw new Register.Error(`Register ${this.name} cannot lookup "${name}"`);
+  }
+  if (name >= this.size || name < 0) {
+    throw new Register.Error(`Register ${this.name} bit ${name} out of range`);
   }
   return name;
 }; // Register.prototype.aliasLookup()
@@ -82,7 +92,7 @@ Register.prototype.lpad = function(int, size, pad='0') {
 };
 
 Register.prototype.toString = function () {
-  return `[object Register 0b${this.lpad(this.bits.toString(2), this.size)} '${this.name}']`;
+  return `[object Register 0b${this.lpad(this.bits.toString(2), this.size)} ${this.name}]`;
 }; // Register.prototype.toString()
 
 module.exports = Register;
