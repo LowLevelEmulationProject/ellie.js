@@ -12,6 +12,7 @@
     "coverage": "nyc --reporter html --reporter text --report-dir docs/coverage npm run test:html",
     "lint": "eslint src/",
     "test": "npm run test:text test:html",
+    "test:github": "ava --color",
     "test:text": "ava --color | tee >(sed -n 's/\\x1B\\[[0-9;]\\{1,\\}[A-Za-z]//gw docs/test.log')",
     "test:html": "ava --tap | taplet -o docs/test.html"
   },
