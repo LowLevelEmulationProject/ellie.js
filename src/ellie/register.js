@@ -1,12 +1,13 @@
-function Register(name, size, bits=0x0) {
+function Register(acronym, desc, size, bits=0x0) {
   // strongly enforced parameter
-  if (typeof name === 'undefined' || typeof size === 'undefined') {
-    throw new Register.Error('Register(name, size) must be defined');
+  if (typeof acronym === 'undefined' || typeof desc === 'undefined' || typeof size === 'undefined') {
+    throw new Register.Error('Register(acronym, description, size) must be defined');
   }
-  this.bits    = bits;
-  this.name    = name;
-  this.aliases = {}; // named aliases for given bits
-  this.size    = size;
+  this.bits        = bits;
+  this.description = desc;
+  this.name        = acronym;
+  this.aliases     = {}; // named aliases for given bits
+  this.size        = size;
   this.wrap();
   return this;
 } // Register()
@@ -92,7 +93,7 @@ Register.prototype.lpad = function(int, size, pad='0') {
 };
 
 Register.prototype.toString = function () {
-  return `[object Register 0b${this.lpad(this.bits.toString(2), this.size)} ${this.name}]`;
+  return `[object Register 0b${this.lpad(this.bits.toString(2), this.size)} ${this.description}]`;
 }; // Register.prototype.toString()
 
 module.exports = Register;

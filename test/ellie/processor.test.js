@@ -95,13 +95,13 @@ test('addOperation() should not reject blank bonded operations', (t) => {
 
 test('addRegister() should be chainable', (t) => {
   let processor = new t.context.Ellie.Processor('NULL');
-  let reg = new t.context.Ellie.Register('REG', 4);
+  let reg = new t.context.Ellie.Register('REG', 'FULL REGISTER NAME', 4);
   t.is(processor.addRegister(reg), processor);
 });
 
 test('addRegister() should reject repeated operations', (t) => {
   let processor = new t.context.Ellie.Processor('NULL');
-  let reg = new t.context.Ellie.Register('REG', 4);
+  let reg = new t.context.Ellie.Register('REG', 'FULL REGISTER NAME', 4);
   processor.addRegister(reg);
   let err = t.throws(() => {
     processor.addRegister(reg);
@@ -111,7 +111,7 @@ test('addRegister() should reject repeated operations', (t) => {
 
 test('addRegister() should accept repeat when forced', (t) => {
   let processor = new t.context.Ellie.Processor('NULL');
-  let reg = new t.context.Ellie.Register('REG', 4);
+  let reg = new t.context.Ellie.Register('REG', 'FULL REGISTER NAME', 4);
   processor.addRegister(reg);
   t.notThrows(() => {
     processor.addRegister(reg, true);
