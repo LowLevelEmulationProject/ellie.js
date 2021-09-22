@@ -4,8 +4,29 @@
 
 const test = require('ava');
 
+test.before((t) => {
+  t.context.Processor  = require('@ellieproject/ellie/processor');
+});
+
 test.beforeEach((t) => {
-  t.context.Processor = require('@ellieproject/ellie/processor');
+  function doTrue() { return true; }
+  function doFalse() { return false; }
+  t.context.INSTR_GOOD = 0x00;
+  t.context.INSTR_BAD  = 0x01;
+  // prebaked objects
+  t.context.MODE_NOP   = new t.context.Processor.Mode('NOP', 'NOP MODE', doTrue, doTrue);
+  t.context.MODE_AFTER_FALSE  = new t.context.Processor.Mode('NOP', 'NOP FALSE AFTER', doTrue, doFalse);
+  t.context.MODE_BEFORE_FALSE = new t.context.Processor.Mode('NOP', 'NOP FALSE BEFORE', doFalse, doTrue);
+  t.context.OP_FALSE  = new t.context.Processor.Operation('NOP', 'Do nothing', doFalse);
+  t.context.OP_NOP    = new t.context.Processor.Operation('NOP', 'Do nothing', doTrue);
+  t.context.PROC_NULL = new t.context.Processor('NULL');
+  // prebaked "results" to compare against
+  // TODO THESE SHOULD BE FROZEN TO PREVENT EDITS
+  t.context.MODES             = { 'NOP': t.context.INSTR_GOOD };
+  t.context.OP_INSTRUCTIONS   = {};
+  t.context.OP_INSTRUCTIONS[t.context.INSTR_GOOD] = t.context.MODE_NOP;
+  t.context.PROC_INSTRUCTIONS = {};
+  t.context.PROC_INSTRUCTIONS[t.context.INSTR_GOOD] = t.context.OP_NOP;
 });
 
 test('Processor.Error should be accessible', (t) => {
@@ -13,102 +34,84 @@ test('Processor.Error should be accessible', (t) => {
 });
 
 test('addMode() should be chainable', (t) => {
-  let instruction = 0x00;
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing');
-  let mode = new t.context.Processor.Mode('NOP MODE');
-  let val = op.addMode(instruction, mode);
-  t.is(val, op);
+  let op   = t.context.OP_NOP;
+  let mode = t.context.MODE_NOP;
+  t.is(op.addMode(t.context.INSTR_GOOD, mode), op);
 });
 
 test('addMode() should alter this.mode', (t) => {
-  let instruction = 0x00;
-  let modeAfter = {'NOP MODE': instruction};
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing');
-  let mode = new t.context.Processor.Mode('NOP MODE');
+  let op   = t.context.OP_NOP;
+  let mode = t.context.MODE_NOP;
   t.deepEqual(op.mode, {});
-  op.addMode(instruction, mode);
-  t.deepEqual(op.mode, modeAfter);
+  op.addMode(t.context.INSTR_GOOD, mode);
+  t.deepEqual(op.mode, t.context.MODES);
 });
 
 test('addMode() should alter this.instruction', (t) => {
-  let instruction = 0x00;
-  let instructionAfter = {};
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing');
-  let mode = new t.context.Processor.Mode('NOP MODE');
-  instructionAfter[instruction] = mode;
+  let op   = t.context.OP_NOP;
+  let mode = t.context.MODE_NOP;
   t.deepEqual(op.instruction, {});
-  op.addMode(instruction, mode);
-  t.deepEqual(op.instruction, instructionAfter);
+  op.addMode(t.context.INSTR_GOOD, mode);
+  t.deepEqual(op.instruction, t.context.OP_INSTRUCTIONS);
 });
 
 test('addMode() should reject a repeated instruction', (t) => {
-  let instruction = 0x00;
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing');
-  let mode = new t.context.Processor.Mode('NOP MODE');
-  op.addMode(instruction, mode);
+  let op   = t.context.OP_NOP;
+  let mode = t.context.MODE_NOP;
+  op.addMode(t.context.INSTR_GOOD, mode);
   let err = t.throws(() => {
-    op.addMode(instruction, mode);
+    op.addMode(t.context.INSTR_GOOD, mode);
   });
   t.is(err.message, 'Operation NOP already has instruction 0x0');
 });
 
 test('addMode() should reject a repeated mode', (t) => {
-  let instruction1 = 0x00;
-  let instruction2 = 0x01;
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing');
-  let mode = new t.context.Processor.Mode('NOP MODE');
-  op.addMode(instruction1, mode);
+  let op   = t.context.OP_NOP;
+  let mode = t.context.MODE_NOP;
+  op.addMode(t.context.INSTR_GOOD, mode);
   let err = t.throws(() => {
-    op.addMode(instruction2, mode);
+    op.addMode(t.context.INSTR_BAD, mode);
   });
-  t.is(err.message, 'Operation NOP already has mode "NOP MODE"');
+  t.is(err.message, 'Operation NOP already has mode "NOP"');
 });
 
 test('addMode() should accept a forced mode', (t) => {
-  let instruction = 0x00;
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing');
-  let mode = new t.context.Processor.Mode('NOP MODE');
-  op.addMode(instruction, mode);
-  op.addMode(instruction, mode, true);
+  let op   = t.context.OP_NOP;
+  let mode = t.context.MODE_NOP;
+  op.addMode(t.context.INSTR_GOOD, mode);
+  op.addMode(t.context.INSTR_GOOD, mode, true);
   t.pass();
 });
 
 test('addMode() should alter processor.instruction after addProcessor()', (t) => {
-  let instruction = 0x00;
-  let instructionAfter = {};
-  let processor = new t.context.Processor('NULL');
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing');
-  let mode = new t.context.Processor.Mode('NOP MODE');
-  instructionAfter[instruction] = op;
+  let processor = t.context.PROC_NULL;
+  let op        = t.context.OP_NOP;
+  let mode      = t.context.MODE_NOP;
   t.deepEqual(processor.instruction, {});
   processor.addOperation(op);
-  op.addMode(instruction, mode);
-  t.deepEqual(processor.instruction, instructionAfter);
+  op.addMode(t.context.INSTR_GOOD, mode);
+  t.deepEqual(processor.instruction, t.context.PROC_INSTRUCTIONS);
 });
 
 test('addMode() should alter processor.instruction during addProcessor()', (t) => {
-  let instruction = 0x00;
-  let instructionAfter = {};
-  let processor = new t.context.Processor('NULL');
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing');
-  let mode = new t.context.Processor.Mode('NOP MODE');
-  instructionAfter[instruction] = op;
+  let processor = t.context.PROC_NULL;
+  let op        = t.context.OP_NOP;
+  let mode      = t.context.MODE_NOP;
   t.deepEqual(processor.instruction, {});
-  op.addMode(instruction, mode);
+  op.addMode(t.context.INSTR_GOOD, mode);
   processor.addOperation(op);
-  t.deepEqual(processor.instruction, instructionAfter);
+  t.deepEqual(processor.instruction, t.context.PROC_INSTRUCTIONS);
 });
 
 test('addProcessor() should be chainable', (t) => {
-  let processor = new t.context.Processor('NULL');
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing');
-  let val = op.addProcessor(processor);
-  t.is(val, op);
+  let processor = t.context.PROC_NULL;
+  let op        = t.context.OP_NOP;
+  t.is(op.addProcessor(processor), op);
 });
 
 test('addProcessor() should reject a second processor', (t) => {
-  let processor = new t.context.Processor('NULL');
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing');
+  let processor = t.context.PROC_NULL;
+  let op        = t.context.OP_NOP;
   op.addProcessor(processor);
   let err = t.throws(() => {
     op.addProcessor(processor);
@@ -117,79 +120,64 @@ test('addProcessor() should reject a second processor', (t) => {
 });
 
 test('run() should be chainable', (t) => {
-  let instruction = 0x00;
-  let doNothing = function() { return true; };
-  let processor = new t.context.Processor('NULL');
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing', doNothing);
-  let mode = new t.context.Processor.Mode('NOP MODE');
-  op.addMode(instruction, mode);
+  let processor = t.context.PROC_NULL;
+  let op        = t.context.OP_NOP;
+  let mode      = t.context.MODE_NOP;
+  op.addMode(t.context.INSTR_GOOD, mode);
   processor.addOperation(op);
-  t.is(op.run(instruction), op);
+  t.is(op.run(t.context.INSTR_GOOD), op);
 });
 
 test('run() should reject missing instructions', (t) => {
-  let instruction = 0x00;
-  let instructionBad = 0x01;
-  let doNothing = function() { return true; };
-  let processor = new t.context.Processor('NULL');
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing', doNothing);
-  let mode = new t.context.Processor.Mode('NOP MODE');
-  op.addMode(instruction, mode);
+  let processor = t.context.PROC_NULL;
+  let op        = t.context.OP_NOP;
+  let mode      = t.context.MODE_NOP;
+  op.addMode(t.context.INSTR_GOOD, mode);
   processor.addOperation(op);
   let err = t.throws(() => {
-    op.run(instructionBad);
+    op.run(t.context.INSTR_BAD);
   });
   t.is(err.message, 'Operation NOP missing instruction 0x1');
 });
 
 test('run() should halt on beforeExecute()', (t) => {
-  let instruction = 0x00;
-  let doNothing = function() { return true; };
-  let doNothingFalse = function() { return false; };
-  let processor = new t.context.Processor('NULL');
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing', doNothing);
-  let mode = new t.context.Processor.Mode('NOP MODE', doNothingFalse, doNothing);
-  op.addMode(instruction, mode);
+  let processor = t.context.PROC_NULL;
+  let op        = t.context.OP_NOP;
+  let mode      = t.context.MODE_BEFORE_FALSE;
+  op.addMode(t.context.INSTR_GOOD, mode);
   processor.addOperation(op);
   let err = t.throws(() => {
-    op.run(instruction);
+    op.run(t.context.INSTR_GOOD);
   });
   t.is(err.message, 'Halting NOP 0x0. beforeExecute() returned false');
 });
 
 test('run() should halt on execute()', (t) => {
-  let instruction = 0x00;
-  let doNothing = function() { return true; };
-  let doNothingFalse = function() { return false; };
-  let processor = new t.context.Processor('NULL');
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing', doNothingFalse);
-  let mode = new t.context.Processor.Mode('NOP MODE', doNothing, doNothing);
-  op.addMode(instruction, mode);
+  let processor = t.context.PROC_NULL;
+  let op        = t.context.OP_FALSE;
+  let mode      = t.context.MODE_NOP;
+  op.addMode(t.context.INSTR_GOOD, mode);
   processor.addOperation(op);
   let err = t.throws(() => {
-    op.run(instruction);
+    op.run(t.context.INSTR_GOOD);
   });
   t.is(err.message, 'Halting NOP 0x0. execute() returned false');
 });
 
 test('run() should halt on afterExecute()', (t) => {
-  let instruction = 0x00;
-  let doNothing = function() { return true; };
-  let doNothingFalse = function() { return false; };
-  let processor = new t.context.Processor('NULL');
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing', doNothing);
-  let mode = new t.context.Processor.Mode('NOP MODE', doNothing, doNothingFalse);
-  op.addMode(instruction, mode);
+  let processor = t.context.PROC_NULL;
+  let op        = t.context.OP_NOP;
+  let mode      = t.context.MODE_AFTER_FALSE;
+  op.addMode(t.context.INSTR_GOOD, mode);
   processor.addOperation(op);
   let err = t.throws(() => {
-    op.run(instruction);
+    op.run(t.context.INSTR_GOOD);
   });
   t.is(err.message, 'Halting NOP 0x0. afterExecute() returned false');
 });
 
 test('toString() returns text #1', (t) => {
-  let op = new t.context.Processor.Operation('NOP', 'Do nothing');
-  t.is(op.toString(), '[object Operation NOP Do nothing]');
+  t.is(t.context.OP_NOP.toString(), '[object Operation NOP Do nothing]');
 });
 
 test('toString() returns text #2', (t) => {

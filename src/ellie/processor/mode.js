@@ -26,8 +26,9 @@ function doNothing() {
   return true; // halt if not true
 } // doNothing
 
-function Mode(name, before=doNothing, after=doNothing) {
-  this.name   = name;
+function Mode(name, description, before=doNothing, after=doNothing) {
+  this.description   = description;
+  this.name          = name;
   this.beforeExecute = before; // runs before Operation.execute()
   this.afterExecute  = after; // runs after Operation.execute()
   return this;
