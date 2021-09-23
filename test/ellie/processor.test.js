@@ -6,6 +6,7 @@ const test = require('ava');
 
 test.beforeEach((t) => {
   t.context.Ellie = require('@ellieproject/ellie');
+  t.context.PROC_NULL = new t.context.Ellie.Processor('NULL');
 });
 
 test('Processor.Error should be accessible', (t) => {
@@ -22,7 +23,7 @@ test('Processor.Operation should be accessible', (t) => {
 
 test('addInstruction() should be chainable', (t) => {
   let instruction = 0x00;
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let op = new t.context.Ellie.Processor.Operation('NOP');
   let val = processor.addInstruction(instruction, op);
   t.is(val, processor);
@@ -30,7 +31,7 @@ test('addInstruction() should be chainable', (t) => {
 
 test('addInstruction() should addOperation() new Operations', (t) => {
   let instruction = 0x00;
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let op = new t.context.Ellie.Processor.Operation('NOP');
   let operations = {'NOP': op};
   processor.addInstruction(instruction, op);
@@ -39,7 +40,7 @@ test('addInstruction() should addOperation() new Operations', (t) => {
 
 test('addInstruction() should reject a repeated instruction', (t) => {
   let instruction = 0x00;
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let op = new t.context.Ellie.Processor.Operation('NOP');
   processor.addInstruction(instruction, op);
   let err = t.throws(() => {
@@ -48,24 +49,47 @@ test('addInstruction() should reject a repeated instruction', (t) => {
   t.is(err.message, 'Processor NULL already has instruction 0x0');
 });
 
-test.todo('addMemory() tests needed');
+test('addMemory() should be chainable', (t) => {
+  let processor = t.context.PROC_NULL;
+  let mem = new t.context.Ellie.Memory('ROM', 'Read Only Memory', Uint8Array, 16);
+  t.is(processor.addMemory(mem), processor);
+});
+
+test('addMemory() should reject repeated operations', (t) => {
+  let processor = t.context.PROC_NULL;
+  let mem = new t.context.Ellie.Memory('ROM', 'Read Only Memory', Uint8Array, 16);
+  processor.addMemory(mem);
+  let err = t.throws(() => {
+    processor.addMemory(mem);
+  });
+  t.is(err.message, 'Processor NULL already has memory ROM');
+});
+
+test('addMemory() should accept repeat when forced', (t) => {
+  let processor = t.context.PROC_NULL;
+  let mem = new t.context.Ellie.Memory('ROM', 'Read Only Memory', Uint8Array, 16);
+  processor.addMemory(mem);
+  t.notThrows(() => {
+    processor.addMemory(mem, true);
+  });
+});
 
 test('addOperation() should be chainable', (t) => {
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let op = new t.context.Ellie.Processor.Operation('NOP');
   let val = processor.addOperation(op);
   t.is(val, processor);
 });
 
 test('addOperation() should assign a processor if null', (t) => {
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let op = new t.context.Ellie.Processor.Operation('NOP');
   processor.addOperation(op);
   t.is(op.processor, processor);
 });
 
 test('addOperation() should reject repeated operations', (t) => {
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let op = new t.context.Ellie.Processor.Operation('NOP');
   processor.addOperation(op);
   let err = t.throws(() => {
@@ -75,7 +99,7 @@ test('addOperation() should reject repeated operations', (t) => {
 });
 
 test('addOperation() should accept repeat when forced', (t) => {
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let op = new t.context.Ellie.Processor.Operation('NOP');
   processor.addOperation(op);
   t.notThrows(() => {
@@ -84,7 +108,7 @@ test('addOperation() should accept repeat when forced', (t) => {
 });
 
 test('addOperation() should not reject blank bonded operations', (t) => {
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let op = new t.context.Ellie.Processor.Operation('NOP');
   let operations = {'NOP': op};
   op.addProcessor(processor);
@@ -94,13 +118,13 @@ test('addOperation() should not reject blank bonded operations', (t) => {
 });
 
 test('addRegister() should be chainable', (t) => {
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let reg = new t.context.Ellie.Register('REG', 'FULL REGISTER NAME', 4);
   t.is(processor.addRegister(reg), processor);
 });
 
 test('addRegister() should reject repeated operations', (t) => {
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let reg = new t.context.Ellie.Register('REG', 'FULL REGISTER NAME', 4);
   processor.addRegister(reg);
   let err = t.throws(() => {
@@ -110,7 +134,7 @@ test('addRegister() should reject repeated operations', (t) => {
 });
 
 test('addRegister() should accept repeat when forced', (t) => {
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let reg = new t.context.Ellie.Register('REG', 'FULL REGISTER NAME', 4);
   processor.addRegister(reg);
   t.notThrows(() => {
@@ -120,7 +144,7 @@ test('addRegister() should accept repeat when forced', (t) => {
 
 test('run() should reject unknown instructions', (t) => {
   let instructionBad = 0x00;
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let err = t.throws(() => {
     processor.run(instructionBad);
   });
@@ -130,7 +154,7 @@ test('run() should reject unknown instructions', (t) => {
 test('run() should allow a valid instruction', (t) => {
   let instruction = 0x00;
   let doNothing = function() { return true; };
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let op = new t.context.Ellie.Processor.Operation('NOP', 'do nothing', doNothing);
   let mode = new t.context.Ellie.Processor.Mode('MODE');
   op.addMode(instruction, mode);
@@ -142,7 +166,7 @@ test('run() should allow a valid instruction', (t) => {
 test('run() should reject an unknown operation', (t) => {
   let instruction = 0x00;
   let doNothing = function() { return true; };
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let opBad = new t.context.Ellie.Processor.Operation('BAD', 'bad operation', doNothing);
   let opGood = new t.context.Ellie.Processor.Operation('NOP', 'do nothing', doNothing);
   let mode = new t.context.Ellie.Processor.Mode('MODE');
@@ -157,7 +181,7 @@ test('run() should reject an unknown operation', (t) => {
 test('run() should allow a valid operation + mode', (t) => {
   let instruction = 0x00;
   let doNothing = function() { return true; };
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let op = new t.context.Ellie.Processor.Operation('NOP', 'do nothing', doNothing);
   let mode = new t.context.Ellie.Processor.Mode('MODE');
   op.addMode(instruction, mode);
@@ -169,7 +193,7 @@ test('run() should allow a valid operation + mode', (t) => {
 test('run() should reject any other parameter type', (t) => {
   let instruction = 0x00;
   let doNothing = function() { return true; };
-  let processor = new t.context.Ellie.Processor('NULL');
+  let processor = t.context.PROC_NULL;
   let op = new t.context.Ellie.Processor.Operation('NOP', 'do nothing', doNothing);
   let mode = new t.context.Ellie.Processor.Mode('MODE');
   op.addMode(instruction, mode);

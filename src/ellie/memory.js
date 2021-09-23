@@ -1,0 +1,50 @@
+/* ellie/memory.js
+ *
+ * Memory cells are, in practice, a pile of aliases overlaying
+ * real "physical" memory. It's not unreasonable to desire both
+ * direct memory access in an absolute sense, but also desire to
+ * create aliases for a subsection of that memory.
+ *
+ * When the buffer variable is not used, Memory will
+ * generate a ArrayBuffer and attaching it to the TypedArray
+ * specified by the format parameter. When the buffer variable
+ * is used (and it should be another Memory cell), the ArrayBuffer
+ * from the buffer parameter is reused, with a TypedArray view
+ * based on the format parameter. The offset parameter, if not
+ * given, will create an alias starting at the beginning of the
+ * ArrayBuffer.
+ */
+
+function Memory(name, description, format, size, buffer=null, offset=0) {
+  if (
+    typeof name        === 'undefined' ||
+    typeof description === 'undefined' ||
+    typeof format      === 'undefined' ||
+    typeof size        === 'undefined' ) {
+    throw new Memory.Error('Memory(name, description, format, size) must be defined');
+  }
+  this.description = description;
+  this.name = name;
+  // is this better than assuming that size and offset are in bytes?
+  offset *= format.BYTES_PER_ELEMENT;
+  size   *= format.BYTES_PER_ELEMENT;
+  if (buffer === null) { // no buffer, make one
+    buffer = new ArrayBuffer(size);
+  } else if (buffer instanceof Memory) {
+    buffer = buffer.data.buffer;
+  } else if (buffer instanceof ArrayBuffer) {
+    // do nothing, buffer is an ArrayBuffer
+  } else { // buffer unknown
+    throw new Memory.Error(`Memory ${name} cannot interpret buffer "${buffer}"`);
+  }
+  this.data = new format(buffer, offset, size);
+  return this;
+} // Memory()
+
+Memory.Error     = require('@ellieproject/ellie/memory/error');
+
+Memory.prototype.toString = function() {
+  return `[object Memory ${this.description} ${this.data.constructor.name} ${this.data.length}]`;
+}; // Memory.prototype.toString()
+
+module.exports = Memory;

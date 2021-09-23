@@ -184,7 +184,7 @@ test('wrap() should fix overflown Registers', (t) => {
   reg.bits += 1; // overflow
   t.is(reg.bits, 0b10000);
   reg.wrap();
-  t.is(reg.bits, 0b0);
+  t.is(reg.bits, 0b0000);
 });
 
 test('wrap() should fix underflown Registers', (t) => {
