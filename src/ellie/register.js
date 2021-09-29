@@ -58,6 +58,24 @@ Register.prototype.aliasLookup = function(name) {
 
 // REGISTER OPERATIONS
 
+Register.prototype.and = function(other) {
+  this.bits &= other.bits;
+  this.wrap();
+  return this;
+}; // Register.prototype.add()
+
+Register.prototype.or = function(other) {
+  this.bits |= other.bits;
+  this.wrap();
+  return this;
+}; // Register.prototype.or()
+
+Register.prototype.xor = function(other) {
+  this.bits ^= other.bits;
+  this.wrap();
+  return this;
+}; // Register.prototype.xor()
+
 Register.prototype.load = function(other) {
   this.bits = other.bits;
   this.wrap();

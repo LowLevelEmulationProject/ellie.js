@@ -7,8 +7,8 @@ const test = require('ava');
 test.beforeEach((t) => {
   t.context.Register = require('@ellieproject/ellie/register');
   t.context.REG_4_0000 = new t.context.Register('REG', 'EMPTY REGISTER NAME', 4, 0b0000);
-  t.context.REG_4_1000 = new t.context.Register('REG', '1000 REGISTER NAME', 4, 0b1000);
-  t.context.REG_4_1111 = new t.context.Register('REG', '1000 REGISTER NAME', 4, 0b1111);
+  t.context.REG_4_1000 = new t.context.Register('REG', '1000 REGISTER NAME',  4, 0b1000);
+  t.context.REG_4_1111 = new t.context.Register('REG', '1111 REGISTER NAME',  4, 0b1111);
 });
 
 test('Register.Error should be accessible', (t) => {
@@ -122,6 +122,51 @@ test('aliasLookup() should nonexistant aliases', (t) => {
   t.is(err.message, 'Register REG has no alias Z');
 });
 
+test('and() should be chainable', (t) => {
+  let reg1 = t.context.REG_4_0000;
+  let reg2 = t.context.REG_4_1111;
+  t.is(reg1.and(reg2), reg1);
+});
+
+test('and() should copy then and, but not link, registers', (t) => {
+  let reg1 = t.context.REG_4_1111;
+  let reg2 = t.context.REG_4_1000;
+  reg1.and(reg2);
+  t.is(reg1.bits, 0b1000);
+  reg2.set(0b0000);
+  t.is(reg1.bits, 0b1000);
+});
+
+test('or() should be chainable', (t) => {
+  let reg1 = t.context.REG_4_0000;
+  let reg2 = t.context.REG_4_1111;
+  t.is(reg1.or(reg2), reg1);
+});
+
+test('or() should copy then or, but not link, registers', (t) => {
+  let reg1 = t.context.REG_4_0000;
+  let reg2 = t.context.REG_4_1000;
+  reg1.or(reg2);
+  t.is(reg1.bits, 0b1000);
+  reg2.set(0b1111);
+  t.is(reg1.bits, 0b1000);
+});
+
+test('xor() should be chainable', (t) => {
+  let reg1 = t.context.REG_4_0000;
+  let reg2 = t.context.REG_4_1111;
+  t.is(reg1.xor(reg2), reg1);
+});
+
+test('xor() should copy then xor, but not link, registers', (t) => {
+  let reg1 = t.context.REG_4_1111;
+  let reg2 = t.context.REG_4_1000;
+  reg1.xor(reg2);
+  t.is(reg1.bits, 0b0111);
+  reg2.set(0b0000);
+  t.is(reg1.bits, 0b0111);
+});
+
 test('load() should be chainable', (t) => {
   let reg1 = t.context.REG_4_0000;
   let reg2 = t.context.REG_4_1111;
@@ -133,7 +178,7 @@ test('load() should copy, but not link, registers', (t) => {
   let reg2 = t.context.REG_4_1111;
   reg1.load(reg2);
   t.is(reg1.bits, reg2.bits);
-  reg2.set(0b1111);
+  reg2.set(0b0000);
   t.is(reg1.bits, 0b1111);
 });
 
