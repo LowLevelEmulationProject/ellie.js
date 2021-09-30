@@ -122,49 +122,56 @@ test('aliasLookup() should nonexistant aliases', (t) => {
   t.is(err.message, 'Register REG has no alias Z');
 });
 
-test('and() should be chainable', (t) => {
-  let reg1 = t.context.REG_4_0000;
-  let reg2 = t.context.REG_4_1111;
-  t.is(reg1.and(reg2), reg1);
+test('and() should return this.bits', (t) => {
+  let reg1 = t.context.REG_4_1111;
+  let reg2 = t.context.REG_4_1000;
+  t.is(reg1.and(reg2), 0b1000);
 });
 
 test('and() should copy then and, but not link, registers', (t) => {
   let reg1 = t.context.REG_4_1111;
   let reg2 = t.context.REG_4_1000;
   reg1.and(reg2);
-  t.is(reg1.bits, 0b1000);
   reg2.set(0b0000);
   t.is(reg1.bits, 0b1000);
 });
 
-test('or() should be chainable', (t) => {
+test('or() should return this.bits', (t) => {
   let reg1 = t.context.REG_4_0000;
   let reg2 = t.context.REG_4_1111;
-  t.is(reg1.or(reg2), reg1);
+  t.is(reg1.or(reg2), 0b1111);
 });
 
 test('or() should copy then or, but not link, registers', (t) => {
   let reg1 = t.context.REG_4_0000;
   let reg2 = t.context.REG_4_1000;
   reg1.or(reg2);
-  t.is(reg1.bits, 0b1000);
   reg2.set(0b1111);
   t.is(reg1.bits, 0b1000);
 });
 
-test('xor() should be chainable', (t) => {
-  let reg1 = t.context.REG_4_0000;
-  let reg2 = t.context.REG_4_1111;
-  t.is(reg1.xor(reg2), reg1);
+test('xor() should return this.bits', (t) => {
+  let reg1 = t.context.REG_4_1111;
+  let reg2 = t.context.REG_4_1000;
+  t.is(reg1.xor(reg2), 0b0111);
 });
 
 test('xor() should copy then xor, but not link, registers', (t) => {
   let reg1 = t.context.REG_4_1111;
   let reg2 = t.context.REG_4_1000;
   reg1.xor(reg2);
-  t.is(reg1.bits, 0b0111);
   reg2.set(0b0000);
   t.is(reg1.bits, 0b0111);
+});
+
+test('inc() should return this.bits', (t) => {
+  let reg1 = t.context.REG_4_1111;
+  t.is(reg1.inc(), 0b0000);
+});
+
+test('dec() should return this.bits', (t) => {
+  let reg1 = t.context.REG_4_0000;
+  t.is(reg1.dec(), 0b1111);
 });
 
 test('load() should be chainable', (t) => {

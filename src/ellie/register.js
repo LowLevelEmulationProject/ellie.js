@@ -61,20 +61,32 @@ Register.prototype.aliasLookup = function(name) {
 Register.prototype.and = function(other) {
   this.bits &= other.bits;
   this.wrap();
-  return this;
+  return this.bits;
 }; // Register.prototype.add()
 
 Register.prototype.or = function(other) {
   this.bits |= other.bits;
   this.wrap();
-  return this;
+  return this.bits;
 }; // Register.prototype.or()
 
 Register.prototype.xor = function(other) {
   this.bits ^= other.bits;
   this.wrap();
-  return this;
+  return this.bits;
 }; // Register.prototype.xor()
+
+Register.prototype.inc = function() {
+  this.bits += 1;
+  this.wrap();
+  return this.bits;
+}; // Register.prototype.inc()
+
+Register.prototype.dec = function() {
+  this.bits -= 1;
+  this.wrap();
+  return this.bits;
+}; // Register.prototype.dec()
 
 Register.prototype.load = function(other) {
   this.bits = other.bits;
