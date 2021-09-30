@@ -164,14 +164,24 @@ test('xor() should copy then xor, but not link, registers', (t) => {
   t.is(reg1.bits, 0b0111);
 });
 
-test('inc() should return this.bits', (t) => {
+test('inc() should increment and return this.bits', (t) => {
   let reg1 = t.context.REG_4_1111;
   t.is(reg1.inc(), 0b0000);
 });
 
-test('dec() should return this.bits', (t) => {
+test('inc() should increment by the value given', (t) => {
+  let reg1 = t.context.REG_4_1111;
+  t.is(reg1.inc(2), 0b0001);
+});
+
+test('dec() should decrement and return this.bits', (t) => {
   let reg1 = t.context.REG_4_0000;
   t.is(reg1.dec(), 0b1111);
+});
+
+test('dec() should increment by the value given', (t) => {
+  let reg1 = t.context.REG_4_0000;
+  t.is(reg1.dec(2), 0b1110);
 });
 
 test('load() should be chainable', (t) => {

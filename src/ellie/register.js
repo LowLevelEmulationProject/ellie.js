@@ -76,14 +76,14 @@ Register.prototype.xor = function(other) {
   return this.bits;
 }; // Register.prototype.xor()
 
-Register.prototype.inc = function() {
-  this.bits += 1;
+Register.prototype.inc = function(val=1) {
+  this.bits += val;
   this.wrap();
   return this.bits;
 }; // Register.prototype.inc()
 
-Register.prototype.dec = function() {
-  this.bits -= 1;
+Register.prototype.dec = function(val=1) {
+  this.bits -= val;
   this.wrap();
   return this.bits;
 }; // Register.prototype.dec()
