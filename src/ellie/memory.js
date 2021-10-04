@@ -24,6 +24,7 @@ function Memory(name, description, format, size, buffer=null, offset=0) {
     throw new Memory.Error('Memory(name, description, format, size) must be defined');
   }
   this.description = description;
+  this.mirrors = [];
   this.name = name;
   // is this better than assuming that size and offset are in bytes?
   offset *= format.BYTES_PER_ELEMENT;
@@ -41,7 +42,31 @@ function Memory(name, description, format, size, buffer=null, offset=0) {
   return this;
 } // Memory()
 
-Memory.Error     = require('@ellieproject/ellie/memory/error');
+Memory.Error  = require('@ellieproject/ellie/memory/error');
+Memory.Mirror = require('@ellieproject/ellie/memory/mirror');
+
+Memory.prototype.mirror = function(mirror) {
+  this.mirrors.push(mirror);
+}; // Memory.prototype.mirror()
+
+Memory.prototype.lookup = function(index) {
+  for (const mirror of this.mirrors) {
+    if (index >= mirror.start && index <= mirror.end) {
+      // % isn't quite modulus arithmatic
+      index = (((index - mirror.start) % mirror.sizeOrig) + mirror.sizeOrig) % mirror.sizeOrig + mirror.startOrig;
+    } // if
+  } // for mirror of this.mirrors
+  return index;
+}; // Memory.prototype.lookup()
+
+Memory.prototype.get = function(index) {
+  return this.data[ this.lookup(index) ];
+}; // Memory.prototype.get()
+
+Memory.prototype.set = function(index, value) {
+  this.data[ this.lookup(index) ] = value;
+  return this;
+};
 
 Memory.prototype.toString = function() {
   return `[object Memory ${this.description} ${this.data.constructor.name} ${this.data.length}]`;
