@@ -10,6 +10,7 @@ function Mirror(start, size, startMirror, sizeMirror) {
   this.startOrig = start;
   this.endOrig   = start + size;
   this.sizeOrig  = size;
+  return this;
 } // Memory.Mirror()
 
 module.exports = Mirror;

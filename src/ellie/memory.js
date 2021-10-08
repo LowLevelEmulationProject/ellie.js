@@ -26,6 +26,7 @@ function Memory(name, description, format, size, buffer=null, offset=0) {
   this.description = description;
   this.mirrors = [];
   this.name = name;
+  this.overrides = [];
   // is this better than assuming that size and offset are in bytes?
   offset *= format.BYTES_PER_ELEMENT;
   size   *= format.BYTES_PER_ELEMENT;
@@ -42,12 +43,17 @@ function Memory(name, description, format, size, buffer=null, offset=0) {
   return this;
 } // Memory()
 
-Memory.Error  = require('@ellieproject/ellie/memory/error');
-Memory.Mirror = require('@ellieproject/ellie/memory/mirror');
+Memory.Error    = require('@ellieproject/ellie/memory/error');
+Memory.Mirror   = require('@ellieproject/ellie/memory/mirror');
+Memory.Override = require('@ellieproject/ellie/memory/override');
 
 Memory.prototype.mirror = function(mirror) {
   this.mirrors.push(mirror);
 }; // Memory.prototype.mirror()
+
+Memory.prototype.override = function(override) {
+  this.overrides.push(override);
+};
 
 Memory.prototype.lookup = function(index) {
   for (const mirror of this.mirrors) {
@@ -56,15 +62,30 @@ Memory.prototype.lookup = function(index) {
       index = (((index - mirror.start) % mirror.sizeOrig) + mirror.sizeOrig) % mirror.sizeOrig + mirror.startOrig;
     } // if
   } // for mirror of this.mirrors
+  for (const override of this.overrides) {
+    if (index >= override.start && index <= override.end) {
+      index = override;
+    } // if
+  } // for override of this.overrides
   return index;
 }; // Memory.prototype.lookup()
 
 Memory.prototype.get = function(index) {
-  return this.data[ this.lookup(index) ];
+  let indexReal = this.lookup(index);
+  if (indexReal instanceof Memory.Override) {
+    return indexReal.get(index);
+  } else {
+    return this.data[ indexReal ];
+  }
 }; // Memory.prototype.get()
 
 Memory.prototype.set = function(index, value) {
-  this.data[ this.lookup(index) ] = value;
+  let indexReal = this.lookup(index);
+  if (indexReal instanceof Memory.Override) {
+    indexReal.set(index, value);
+  } else {
+    this.data[ indexReal ] = value;
+  }
   return this;
 };
 
