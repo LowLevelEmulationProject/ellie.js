@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>AVA Test Results for nellie.js</title>
+    <style media="screen">
+      body {
+        margin: 0;
+        font-family: Verdana, Arial, sans-serif;
+      }
+      header {
+        display: flex;
+        padding: 1em;
+        background: #AAA;
+      }
+      #site-title {
+        margin-left: 0;
+        margin-right: auto;
+      }
+      #tests-summary {
+        margin-left: auto;
+        margin-right: 0;
+      }
+      #site-title h1, #tests-summary h2 {
+        cursor: pointer;
+        display: inline;
+      }
+      #site-title, #tests-summary .tests-summary-text {
+        padding: 0 1em;
+      }
+      #search-area, #tests-details {
+        max-width: 1200px;
+        margin: 0 auto 0 auto;
+      }
+      .test-details {
+        margin: 0.5em 0;
+        padding: 1em;
+        border: 2px solid black;
+        border-radius: 1em;
+      }
+      .test-details.hide {
+        display: none;
+      }
+      .test-pass {
+        border: 2px solid green;
+        background: #DFD;
+      }
+      .test-fail {
+        border: 2px solid red;
+        background: #FDD;
+      }
+      .test-details .folded {
+        display: none;
+      }
+      .test-details .test-extra {
+        margin: 0.5em 0;
+        padding: 0.5em;
+        background: #AAA;
+      }
+      .test-details pre.test-code {
+        padding: 0.5em;
+        background: #21252B;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript">
+      function capitalize(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+      }; // capitalize
+
+      function show(klass) {
+        const elements = document.getElementsByClassName(klass);
+        for (const item in elements) {
+          if (elements.hasOwnProperty(item)) {
+            elements[item].classList.remove('hide');
+          } // if hasOwnProperty
+        } // for in document.getElementsByClassName
+      }; // hide()
+
+      function hide(klass) {
+        const elements = document.getElementsByClassName(klass);
+        for (const item in elements) {
+          if (elements.hasOwnProperty(item)) {
+            elements[item].classList.add('hide');
+          } // if hasOwnProperty
+        } // for in document.getElementsByClassName
+      }; // hide()
+
+      function parseTests(json) {
+        const total   = document.getElementById('tests-total');
+        const passed  = document.getElementById('tests-passed');
+        const failed  = document.getElementById('tests-failed');
+        const details = document.getElementById('tests-details');
+
+        total.innerHTML  = json.stats.asserts;
+        passed.innerHTML = json.stats.passes;
+        failed.innerHTML = json.stats.failures;
+
+        for (const assertID in json.asserts) {
+          if (json.asserts.hasOwnProperty(assertID)) {
+            const assert    = json.asserts[assertID];
+            const container = document.createElement('div');
+            const name      = document.createTextNode(assert.name);
+            container.appendChild(name);
+
+            if (assert.extra && Object.keys(assert.extra).length > 0) {
+              const extra = document.createElement('div');
+              for (const extraID in assert.extra) { // name, message, etc.
+                if (assert.extra.hasOwnProperty(extraID)) {
+                  const extraCap  = capitalize(extraID) + ":";
+                  const extraText = document.createTextNode(extraCap);
+                  const extraPre  = document.createElement('pre');
+                  const extraCode = document.createElement('code');
+                  for (const line in assert.extra[extraID]) {
+                    if (assert.extra[extraID].hasOwnProperty(line)) {
+                      const lineText = document.createTextNode(assert.extra[extraID][line]);
+                      const br       = document.createElement('br');
+                      extraCode.appendChild(lineText);
+                      extraCode.appendChild(br);
+                    } // if hasOwnProperty
+                  } // for in assert.extra[extraID]
+                  extraPre.classList.add('test-code');
+                  extraPre.appendChild(extraCode);
+                  extra.appendChild(extraText);
+                  extra.appendChild(extraPre);
+                } // if hasOwnProperty
+              } // for in assert.extra
+              extra.classList.add('test-extra');
+              container.appendChild(extra);
+            } // if assert.extra
+            container.classList.add('test-details');
+            switch (assert.ok) {
+              case true:
+                container.classList.add('test-pass');
+                break;
+              case false:
+                container.classList.add('test-fail');
+                break;
+            }
+            details.appendChild(container);
+          } // if hasOwnProperty
+        } // for
+      }; // parseTests()
+
+      let url='./test.json';
+
+      fetch(url)
+        .then(resp => resp.json())
+        .then(json => parseTests(json));
+    </script>
+    <header>
+      <span id="site-title">
+        <h1>AVA Test Results for nellie.js</h1>
+      </span>
+      <span id="tests-summary">
+        <h2>
+          <span class="tests-summary-text" onclick="show('test-details')">
+            ℹ️ <span id="tests-total">0</span> tests
+          </span>
+          <span class="tests-summary-text" onclick="show('test-details'); hide('test-fail')">
+            ✔️ <span id="tests-passed">0</span> passed
+          </span>
+          <span class="tests-summary-text" onclick="show('test-details'); hide('test-pass')">
+            ❌ <span id="tests-failed">0</span> failed
+          </span>
+        </h2>
+      </span>
+    </header>
+    <main id="tests-details">
+
+    </main>
+  </body>
+</html>

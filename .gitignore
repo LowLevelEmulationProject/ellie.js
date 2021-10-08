@@ -1,3 +1,7 @@
+## Added for docs branch
+/src/
+/test/
+
 # Logs
 logs
 *.log
