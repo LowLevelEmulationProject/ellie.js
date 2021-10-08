@@ -9,6 +9,10 @@ test.beforeEach((t) => {
   t.context.PROC_NULL = new t.context.Ellie.Processor('NULL');
 });
 
+test('Processor.Clock should be accessible', (t) => {
+  t.truthy(t.context.Ellie.Processor.Clock);
+});
+
 test('Processor.Error should be accessible', (t) => {
   t.truthy(t.context.Ellie.Processor.Error);
 });

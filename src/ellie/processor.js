@@ -30,6 +30,7 @@ function Processor(name) {
   return this;
 } // Processor()
 
+Processor.Clock     = require('@ellieproject/ellie/processor/clock');
 Processor.Error     = require('@ellieproject/ellie/processor/error');
 Processor.Mode      = require('@ellieproject/ellie/processor/mode');
 Processor.Operation = require('@ellieproject/ellie/processor/operation');
