@@ -21,7 +21,7 @@ const { hrtime } = require('process');
 
 function Clock(speed, count=0) {
   this.speed = speed;
-  this.count = count;
+  this.count = BigInt(count);
   this.last  = hrtime.bigint();
   this.partners = [];
   return this;
@@ -34,6 +34,7 @@ Clock.prototype.start = function() {
 
 Clock.prototype.tick = function(inc=1) {
   let now     = hrtime.bigint();
+  inc         = BigInt(inc);
   let delta   = now - this.last;
   this.last   = now;
   this.count += inc;
