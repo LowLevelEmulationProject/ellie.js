@@ -21,24 +21,24 @@ const { hrtime } = require('process');
 
 function Clock(speed, count=0) {
   this.speed = speed;
-  this.count = BigInt(count);
-  this.last  = hrtime.bigint();
+  this.count = count;
+  this.last  = hrtime();
   this.partners = [];
   return this;
 } // Processor.Clock()
 
 Clock.prototype.start = function() {
-  this.last = hrtime.bigint();
+  this.last = hrtime();
   return this;
 };
 
 Clock.prototype.tick = function(inc=1) {
-  let now     = hrtime.bigint();
-  inc         = BigInt(inc);
-  let delta   = now - this.last;
-  this.last   = now;
+  let delta   = hrtime(this.last);
+  delta       = 1_000_000_000 * delta[0] + delta[1];
   this.count += inc;
+  // using console.log is a considerable slowdown, consider removing? adding debug mode?
   console.log(`Ticked ${inc} time(s) in ${delta} ns.\tAverage = ${delta/inc} ns`);
+  this.last   = hrtime();
   return this;
 };
 
