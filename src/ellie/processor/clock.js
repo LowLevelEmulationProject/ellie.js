@@ -40,10 +40,20 @@ Clock.prototype.tick = function(inc=1) {
 };
 
 Clock.prototype.log = function() {
-  let delta = hrtime(this.last);
-  delta     = 1_000_000_000 * delta[0] + delta[1];
+  let delta  = hrtime(this.last);
+  delta      = 1_000_000_000 * delta[0] + delta[1];
+  let avg    = (delta / this.inc) >> 0;
+  let real   = (1_000_000_000 / this.speed) >> 0;
+  let string = 'Ticked ' + this.inc + ' time(s) in ' + delta + ' ns.\t' +
+    'Average = ' + avg + ' ns\t' +
+    '100% Sim = ' + real + ' ns\t';
+  if (avg <= real) {
+    string += '\x1b[32m[PASS]\x1b[0m';
+  } else {
+    string += '\x1b[31m[FAIL]\x1b[0m';
+  }
   // using console.log is a considerable slowdown, consider removing? adding debug mode?
-  console.log(`Ticked ${this.inc} time(s) in ${delta} ns.\tAverage = ${delta/this.inc >> 0} ns`);
+  console.log(string);
   this.inc    = 0;
   this.last   = hrtime();
   return this;
