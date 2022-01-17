@@ -76,7 +76,7 @@ Operation.prototype.addProcessor = function(processor, force=false) {
   return this; // chainable
 }; // Operation.prototype.addProcessor()
 
-Operation.prototype.run = function(code, processor) {
+Operation.prototype.exec = function(code, processor) {
   let mode = this.instruction[code];
   let cont = true;
   if (!(code in this.instruction)) {
@@ -96,7 +96,7 @@ Operation.prototype.run = function(code, processor) {
     throw new Operation.Error(`Halting ${this.name} 0x${code.toString(16)}. afterExecute() returned ${cont}`);
   }
   return this; // chainable
-}; // Operation.prototype.run()
+}; // Operation.prototype.exec()
 
 Operation.prototype.toString = function() {
   return `[object Operation ${this.name} ${this.description}]`;

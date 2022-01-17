@@ -119,59 +119,59 @@ test('addProcessor() should reject a second processor', (t) => {
   t.is(err.message, 'Operation NOP already has a Processor');
 });
 
-test('run() should be chainable', (t) => {
+test('exec() should be chainable', (t) => {
   let processor = t.context.PROC_NULL;
   let op        = t.context.OP_NOP;
   let mode      = t.context.MODE_NOP;
   op.addMode(t.context.INSTR_GOOD, mode);
   processor.addOperation(op);
-  t.is(op.run(t.context.INSTR_GOOD), op);
+  t.is(op.exec(t.context.INSTR_GOOD), op);
 });
 
-test('run() should reject missing instructions', (t) => {
+test('exec() should reject missing instructions', (t) => {
   let processor = t.context.PROC_NULL;
   let op        = t.context.OP_NOP;
   let mode      = t.context.MODE_NOP;
   op.addMode(t.context.INSTR_GOOD, mode);
   processor.addOperation(op);
   let err = t.throws(() => {
-    op.run(t.context.INSTR_BAD);
+    op.exec(t.context.INSTR_BAD);
   });
   t.is(err.message, 'Operation NOP missing instruction 0x1');
 });
 
-test('run() should halt on beforeExecute()', (t) => {
+test('exec() should halt on beforeExecute()', (t) => {
   let processor = t.context.PROC_NULL;
   let op        = t.context.OP_NOP;
   let mode      = t.context.MODE_BEFORE_FALSE;
   op.addMode(t.context.INSTR_GOOD, mode);
   processor.addOperation(op);
   let err = t.throws(() => {
-    op.run(t.context.INSTR_GOOD);
+    op.exec(t.context.INSTR_GOOD);
   });
   t.is(err.message, 'Halting NOP 0x0. beforeExecute() returned false');
 });
 
-test('run() should halt on execute()', (t) => {
+test('exec() should halt on execute()', (t) => {
   let processor = t.context.PROC_NULL;
   let op        = t.context.OP_FALSE;
   let mode      = t.context.MODE_NOP;
   op.addMode(t.context.INSTR_GOOD, mode);
   processor.addOperation(op);
   let err = t.throws(() => {
-    op.run(t.context.INSTR_GOOD);
+    op.exec(t.context.INSTR_GOOD);
   });
   t.is(err.message, 'Halting NOP 0x0. execute() returned false');
 });
 
-test('run() should halt on afterExecute()', (t) => {
+test('exec() should halt on afterExecute()', (t) => {
   let processor = t.context.PROC_NULL;
   let op        = t.context.OP_NOP;
   let mode      = t.context.MODE_AFTER_FALSE;
   op.addMode(t.context.INSTR_GOOD, mode);
   processor.addOperation(op);
   let err = t.throws(() => {
-    op.run(t.context.INSTR_GOOD);
+    op.exec(t.context.INSTR_GOOD);
   });
   t.is(err.message, 'Halting NOP 0x0. afterExecute() returned false');
 });

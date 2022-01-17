@@ -146,16 +146,16 @@ test('addRegister() should accept repeat when forced', (t) => {
   });
 });
 
-test('run() should reject unknown instructions', (t) => {
+test('exec() should reject unknown instructions', (t) => {
   let instructionBad = 0x00;
   let processor = t.context.PROC_NULL;
   let err = t.throws(() => {
-    processor.run(instructionBad);
+    processor.exec(instructionBad);
   });
   t.is(err.message, 'Processor NULL missing opcode 0x0');
 });
 
-test('run() should allow a valid instruction', (t) => {
+test('exec() should allow a valid instruction', (t) => {
   let instruction = 0x00;
   let doNothing = function() { return true; };
   let processor = t.context.PROC_NULL;
@@ -163,11 +163,11 @@ test('run() should allow a valid instruction', (t) => {
   let mode = new t.context.Ellie.Processor.Mode('MODE');
   op.addMode(instruction, mode);
   processor.addOperation(op);
-  processor.run(instruction);
+  processor.exec(instruction);
   t.pass();
 });
 
-test('run() should reject an unknown operation', (t) => {
+test('exec() should reject an unknown operation', (t) => {
   let instruction = 0x00;
   let doNothing = function() { return true; };
   let processor = t.context.PROC_NULL;
@@ -177,12 +177,12 @@ test('run() should reject an unknown operation', (t) => {
   opGood.addMode(instruction, mode);
   processor.addOperation(opGood);
   let err = t.throws(() => {
-    processor.run(opBad, mode);
+    processor.exec(opBad, mode);
   });
   t.is(err.message, 'Processor NULL missing Operation BAD');
 });
 
-test('run() should allow a valid operation + mode', (t) => {
+test('exec() should allow a valid operation + mode', (t) => {
   let instruction = 0x00;
   let doNothing = function() { return true; };
   let processor = t.context.PROC_NULL;
@@ -190,11 +190,11 @@ test('run() should allow a valid operation + mode', (t) => {
   let mode = new t.context.Ellie.Processor.Mode('MODE');
   op.addMode(instruction, mode);
   processor.addOperation(op);
-  processor.run(op, mode);
+  processor.exec(op, mode);
   t.pass();
 });
 
-test('run() should reject any other parameter type', (t) => {
+test('exec() should reject any other parameter type', (t) => {
   let instruction = 0x00;
   let doNothing = function() { return true; };
   let processor = t.context.PROC_NULL;
@@ -203,9 +203,9 @@ test('run() should reject any other parameter type', (t) => {
   op.addMode(instruction, mode);
   processor.addOperation(op);
   let err = t.throws(() => {
-    processor.run({});
+    processor.exec({});
   });
-  t.is(err.message, 'Processor NULL cannot run [object Object]');
+  t.is(err.message, 'Processor NULL cannot exec [object Object]');
 });
 
 test.todo('need more ellie processor tests');
