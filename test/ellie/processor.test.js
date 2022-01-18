@@ -157,7 +157,7 @@ test('exec() should reject unknown instructions', (t) => {
 
 test('exec() should allow a valid instruction', (t) => {
   let instruction = 0x00;
-  let doNothing = function() { return true; };
+  let doNothing = function*() { return true; };
   let processor = t.context.PROC_NULL;
   let op = new t.context.Ellie.Processor.Operation('NOP', 'do nothing', doNothing);
   let mode = new t.context.Ellie.Processor.Mode('MODE');
@@ -169,7 +169,7 @@ test('exec() should allow a valid instruction', (t) => {
 
 test('exec() should reject an unknown operation', (t) => {
   let instruction = 0x00;
-  let doNothing = function() { return true; };
+  let doNothing = function*() { return true; };
   let processor = t.context.PROC_NULL;
   let opBad = new t.context.Ellie.Processor.Operation('BAD', 'bad operation', doNothing);
   let opGood = new t.context.Ellie.Processor.Operation('NOP', 'do nothing', doNothing);
@@ -184,7 +184,7 @@ test('exec() should reject an unknown operation', (t) => {
 
 test('exec() should allow a valid operation + mode', (t) => {
   let instruction = 0x00;
-  let doNothing = function() { return true; };
+  let doNothing = function*() { return true; };
   let processor = t.context.PROC_NULL;
   let op = new t.context.Ellie.Processor.Operation('NOP', 'do nothing', doNothing);
   let mode = new t.context.Ellie.Processor.Mode('MODE');
@@ -196,7 +196,7 @@ test('exec() should allow a valid operation + mode', (t) => {
 
 test('exec() should reject any other parameter type', (t) => {
   let instruction = 0x00;
-  let doNothing = function() { return true; };
+  let doNothing = function*() { return true; };
   let processor = t.context.PROC_NULL;
   let op = new t.context.Ellie.Processor.Operation('NOP', 'do nothing', doNothing);
   let mode = new t.context.Ellie.Processor.Mode('MODE');

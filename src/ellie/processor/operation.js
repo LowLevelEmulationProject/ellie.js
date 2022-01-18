@@ -38,13 +38,13 @@
  * among registered opcodes or (operation, mode) pairs.
  */
 
-function Operation(acronym, desc, execute) {
-  this.description = desc;    // '"AND" A with Memory'
-  this.execute     = execute; // function execute()
-  this.instruction = {};      // 0xFF => [object Mode]
-  this.mode        = {};      // 'IMPLIED' => 0xFF
-  this.name        = acronym; // 'AND'
-  this.processor   = null;    // [object Processor]
+function Operation(acronym, desc, executeTick) {
+  this.description = desc;        // '"AND" A with Memory'
+  this.executeTick = executeTick; // function executeTick()
+  this.instruction = {};          // 0xFF => [object Mode]
+  this.mode        = {};          // 'IMPLIED' => 0xFF
+  this.name        = acronym;     // 'AND'
+  this.processor   = null;        // [object Processor]
   return this;
 } // Processor.Operation()
 
@@ -76,27 +76,45 @@ Operation.prototype.addProcessor = function(processor, force=false) {
   return this; // chainable
 }; // Operation.prototype.addProcessor()
 
-Operation.prototype.exec = function(code, processor) {
+Operation.prototype.execTick = function*(code, processor) {
   let mode = this.instruction[code];
   let cont = true;
   if (!(code in this.instruction)) {
     throw new Operation.Error(`Operation ${this.name} missing instruction 0x${code.toString(16)}`);
   } // if !code in this.instruction
 
-  cont = mode.beforeExecute(processor);
+  cont = yield* mode.beforeExecuteTick(processor);
   if (cont !== true) {
     throw new Operation.Error(`Halting ${this.name} 0x${code.toString(16)}. beforeExecute() returned ${cont}`);
   }
-  cont = this.execute(processor);
+  cont = yield* this.executeTick(processor);
   if (cont !== true) {
     throw new Operation.Error(`Halting ${this.name} 0x${code.toString(16)}. execute() returned ${cont}`);
   }
-  cont = mode.afterExecute(processor);
+  cont = yield* mode.afterExecuteTick(processor);
   if (cont !== true) {
     throw new Operation.Error(`Halting ${this.name} 0x${code.toString(16)}. afterExecute() returned ${cont}`);
   }
   return this; // chainable
+}; // Operation.prototype.execTick()
+
+Operation.prototype.exec = function() {
+  let runner = this.execTick.apply(this, arguments);
+  let ret    = runner.next();
+  while (ret.done !== true) {
+    ret = runner.next();
+  } // while not done
+  return ret.value; // should be chainable
 }; // Operation.prototype.exec()
+
+Operation.prototype.execute = function() {
+  let runner = this.executeTick.apply(this, arguments);
+  let ret    = runner.next();
+  while (ret.done !== true) {
+    ret = runner.next();
+  } // while not done
+  return ret.value; // should be chainable
+}; // Operation.prototype.execute()
 
 Operation.prototype.toString = function() {
   return `[object Operation ${this.name} ${this.description}]`;

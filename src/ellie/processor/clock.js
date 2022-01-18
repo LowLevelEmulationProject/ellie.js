@@ -19,23 +19,45 @@
 
 const { hrtime } = require('process');
 
-function Clock(speed, count=0) {
-  this.speed = speed;
-  this.count = count;
-  this.inc   = 0;
-  this.last  = hrtime();
-  this.partners = [];
+function Clock(processor, speed, count=0) {
+  this.processor = processor;
+  this.runner    = processor.runTick();
+  this.speed     = speed;
+  this.count     = count;
+  this.inc       = 0;
+  this.last      = hrtime();
+  this.partners  = [];
   return this;
 } // Processor.Clock()
+
+Clock.prototype.runSynchronous = function() {
+  let slowest = this;
+  let slowestTime = this.count / this.speed;
+  while (true) {
+    for (let partner in this.partners) {
+      let partnerTime = partner.count / partner.speed;
+      if (partnerTime < slowestTime) {
+        slowest = partner;
+        slowestTime = partnerTime;
+      } // if slower
+    } // for partner in this.partners
+    let ret = slowest.runner.next();
+    slowestTime = slowest.count / slowest.speed;
+    //console.log(`${slowest.processor}\tTick = ${slowest.count}\tTime = ${(slowestTime * 1_000_000_000) >> 0} ns\t${ret}`);
+  } // while true
+}; // Clock.prototype.runSynchronous()
 
 Clock.prototype.start = function() {
   this.last = hrtime();
   return this.last;
 };
 
-Clock.prototype.tick = function(inc=1) {
+Clock.prototype.tick = function*(inc=1) {
   this.inc   += inc;
   this.count += inc;
+  for (let i = 0; i < inc; i++) {
+    yield i;
+  }
   return this;
 };
 

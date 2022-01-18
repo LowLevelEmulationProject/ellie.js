@@ -16,6 +16,7 @@ module.exports = {
     'no-throw-literal': 'error',
     'no-unused-vars': 'warn',
     'quotes': ['error', 'single'],
+    'require-yield': 'warn',
     'semi': ['error', 'always']
   }
 };

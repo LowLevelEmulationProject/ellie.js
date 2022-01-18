@@ -9,8 +9,8 @@ test.before((t) => {
 });
 
 test.beforeEach((t) => {
-  function doTrue() { return true; }
-  function doFalse() { return false; }
+  function* doTrue() { return true; }
+  function* doFalse() { return false; }
   t.context.INSTR_GOOD = 0x00;
   t.context.INSTR_BAD  = 0x01;
   // prebaked objects

@@ -22,16 +22,34 @@
  * itself.
  */
 
-function doNothing() {
+function* doNothing() {
   return true; // halt if not true
 } // doNothing
 
 function Mode(name, description, before=doNothing, after=doNothing) {
   this.description   = description;
   this.name          = name;
-  this.beforeExecute = before; // runs before Operation.execute()
-  this.afterExecute  = after; // runs after Operation.execute()
+  this.beforeExecuteTick = before; // runs before Operation.execute()
+  this.afterExecuteTick  = after; // runs after Operation.execute()
   return this;
 } // Processor.Mode()
+
+Mode.prototype.beforeExecute = function() {
+  let runner = this.beforeExecuteTick.apply(this, arguments);
+  let ret    = runner.next();
+  while (ret.done !== true) {
+    ret = runner.next();
+  } // while not done
+  return ret.value;
+}; // Mode.prototype.beforeExecute
+
+Mode.prototype.afterExecute = function() {
+  let runner = this.afterExecuteTick.apply(this, arguments);
+  let ret    = runner.next();
+  while (ret.done !== true) {
+    ret = runner.next();
+  } // while not done
+  return ret.value;
+}; // Mode.prototype.afterExecute
 
 module.exports = Mode;

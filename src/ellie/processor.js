@@ -73,7 +73,7 @@ Processor.prototype.addRegister = function(register, force=false) {
   return this; // chainable
 }; // Processor.prototype.addRegister()
 
-Processor.prototype.exec = function(codeOrOperation, mode) {
+Processor.prototype.execTick = function*(codeOrOperation, mode) {
   let code;
   // lookup the opcode, either by code or {Operation, Mode}
   if (typeof codeOrOperation === 'number') { // code
@@ -91,10 +91,19 @@ Processor.prototype.exec = function(codeOrOperation, mode) {
 
   // run the opcode, if it exists
   if (code in this.instruction) {
-    this.instruction[code].exec(code, this);
+    yield* this.instruction[code].execTick(code, this);
   } else {
     throw new Processor.Error(`Processor ${this.name} missing opcode 0x${code.toString(16)}`);
   }
 };
+
+Processor.prototype.exec = function() {
+  let runner = this.execTick.apply(this, arguments);
+  let ret    = runner.next();
+  while (ret.done !== true) {
+    ret = runner.next();
+  } // while not done
+  return ret.value; // should be chainable
+}; // Processor.prototype.exec()
 
 module.exports = Processor;
